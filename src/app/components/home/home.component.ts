@@ -31,10 +31,10 @@ export class HomeComponent implements OnInit {
     this.sendForm();
   }
 
-  sendForm() {
+  public sendForm() {
     
     this.elasticService.create(environment.customers, this.obj.customer).subscribe(
-      (data) => {
+      () => {
         this.obj.customers.push({ _source: this.obj.customer});
       },
       (error) => {
@@ -49,7 +49,6 @@ export class HomeComponent implements OnInit {
     this.elasticService.getAll(index).subscribe(
       (data) => {
         this.obj[index] = data['hits'].hits;
-        console.log(this.obj[index]);
       },
       (error) => {
         console.error(error);

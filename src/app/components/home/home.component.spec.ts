@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed, async, tick, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async, tick, fakeAsync, waitForAsync } from '@angular/core/testing';
 import { HomeComponent } from './home.component';
 import { ElasticService } from 'src/app/services/elastic.service';
-import { of } from 'rxjs';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
+import { FormsModule, ReactiveFormsModule, NgForm } from '@angular/forms';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 
 describe('HomeComponent', () => {
@@ -111,42 +111,59 @@ describe('HomeComponent', () => {
     dni: '1234566',
     country: 'CO'
   };
+  let responseCreateCustomer: any = {
+    "_index": "customers",
+    "_type": "_doc",
+    "_version": 1,
+    "result": "created",
+    "_seq_no": 1,
+    "_primary_term": 2
+  };
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ HomeComponent ],
       imports: [
         FormsModule,
-        HttpClientModule,
+        HttpClientTestingModule,
         ReactiveFormsModule
       ],
       providers: [ElasticService]
     })
     .compileComponents();
+
   }));
 
   beforeEach( async(() => {
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
-    elasticService = TestBed.get(ElasticService);
-    fixture.detectChanges();
     
-    spyOn(elasticService, 'getAll').and.callFake((someParam) => {
-      if(someParam == "customers") {
-        return of(customers)
+    // mock response
+    elasticService = TestBed.inject(ElasticService);
+
+    spyOn(elasticService, 'getAll').and.callFake((path) => {
+      if(path == 'customers') {
+        return of(customers);
       } else {
-        return of(countries)
+        return of(countries);
       }
     });
 
+    spyOn(elasticService, 'create').and.callFake((path) => {
+      if(path == 'customers') {
+        return of(responseCreateCustomer);
+      }
+    }).and.callThrough();
+
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    
   }));
 
 
-  it('Customers verification', async(() => {
+  it('Customers verification', waitForAsync(() => {
 
     component.ngOnInit();
     fixture.detectChanges();
-    console.log("El componente trae el valor: " + component.getCount());
     expect(component.getCount()).toEqual(6);
     expect(component.obj.customers.length).toEqual(6);
 
@@ -156,14 +173,13 @@ describe('HomeComponent', () => {
     
     component.ngOnInit();
     fixture.detectChanges();
-    console.log("El componente trae el valor: " + component.getCount());
     expect(component.obj.countries.length).toEqual(3);
 
   }));
 
-  it('Register Form should be called', fakeAsync(() => {
+  it('Register Form should be called', async(() => {
     
-    spyOn(component, 'register');
+    spyOn(component, 'register').and.callThrough();
   
     component.ngOnInit();
     fixture.detectChanges();
@@ -177,13 +193,14 @@ describe('HomeComponent', () => {
 
   it('Form should be called', fakeAsync(() => {
     
-    spyOn(component, 'sendForm');
+    spyOn(component, 'sendForm').and.callThrough();
   
-    component.ngOnInit();
     fixture.detectChanges();
 
     let button = fixture.debugElement.nativeElement.querySelector('button');
     button.click();
+    component.ngOnInit();
+    fixture.detectChanges();
    
     expect(component.sendForm).toHaveBeenCalled();
   
@@ -191,12 +208,12 @@ describe('HomeComponent', () => {
 
   it('Load table list should be called', async(() => {
     
-    spyOn(component, 'getAll');
+    spyOn(component, 'getAll').and.callThrough();
     component.ngOnInit();
     fixture.detectChanges();   
     expect(component.getAll).toHaveBeenCalled();
-  
+    
   }));
-
+  
 
 });

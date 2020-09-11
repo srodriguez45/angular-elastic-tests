@@ -21,6 +21,5 @@ describe('AppComponent', () => {
     expect(app.title).toEqual('angular-test');
     done();
   });
-
   
 });
