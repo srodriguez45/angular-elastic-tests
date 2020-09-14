@@ -1,0 +1,35 @@
+version: 2.1
+
+orbs:
+    node: circleci/node@1.1.6
+    aws-cli: circleci/aws-cli@1.0
+    aws-ecr: circleci/aws-ecr@6.12.2
+    aws-ecs: circleci/aws-ecs@1.3.0
+jobs:   
+    install-and-test:
+        docker:
+            - image: circleci/node:6-browsers
+        steps:
+            - checkout
+            - run:
+                name: install
+                command: npm install
+            - run:
+                name: test
+                command: npm run test
+workflows:
+    build-and-deploy:
+        jobs:  
+            - install-and-test
+            - aws-ecr/build-and-push-image:
+                    repo: "angular-test"
+                    tag: "latest"
+                    requires:
+                        - install-and-test
+            - aws-ecs/deploy-service-update:
+                    requires:
+                        - aws-ecr/build-and-push-image
+                    family: "angular-test"
+                    cluster-name: "${AWS_CLUSTER_NAME}"
+                    container-image-name-updates: "container=angular-test,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com/angular-test:latest"
+                    verify-revision-is-deployed: true
