@@ -13,7 +13,7 @@ jobs:
             - checkout
             - run:
                 name: install
-                command: npm install
+                command: sudo npm install -g npm
             - run:
                 name: test
                 command: npm run test
