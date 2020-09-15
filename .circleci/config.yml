@@ -38,7 +38,7 @@ workflows:
             - aws-ecs/deploy-service-update:
                     requires:
                         - aws-ecr/build-and-push-image
-                    family: "angular-test"
+                    family: "ecs-angular-test-svc"
                     cluster-name: "${AWS_CLUSTER_NAME}"
-                    container-image-name-updates: "container=angular-test"
+                    container-image-name-updates: "container=ecs-angular-test-svc,image-and-tag=315861623355.dkr.ecr.us-east-2.amazonaws.com/angular-test:latest"
                     verify-revision-is-deployed: true
