@@ -40,5 +40,5 @@ workflows:
                         - aws-ecr/build-and-push-image
                     family: "angular-test"
                     cluster-name: "${AWS_CLUSTER_NAME}"
-                    container-image-name-updates: "container=angular-test,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.us-east-2.amazonaws.com/angular-test:latest"
+                    container-image-name-updates: "container=angular-test"
                     verify-revision-is-deployed: true
