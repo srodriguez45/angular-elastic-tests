@@ -30,9 +30,6 @@ workflows:
         jobs:  
             - install-and-test
             - aws-ecr/build-and-push-image:
-                    aws-access-key-id: "${AWS_ACCESS_KEY_ID}"
-                    aws-secret-access-key: "${AWS_SECRET_ACCESS_KEY}"
-                    aws-region: "${AWS_DEFAULT_REGION}"
                     profile-name: "CircleCI"
                     repo: "angular-test"
                     tag: "latest"
